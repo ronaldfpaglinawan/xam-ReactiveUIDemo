@@ -1,5 +1,6 @@
 ﻿using ReactiveUI;
 using ReactiveUIDemo.Models;
+using ReactiveUIDemo.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,24 +13,20 @@ namespace ReactiveUIDemo.ViewModels
     public class ContactsViewModel : ReactiveObject
     {
 
-        private List<Contact> _samples = new List<Contact>()
-        {
-            new Contact {FullName = "Ahmad Mozaffar", Email = "aksoftware@hotmail.com", Phone = "09876543"},
-            new Contact {FullName = "Sami Contact", Email = "sami@hotmail.com", Phone = "091234567"},
-            new Contact {FullName = "Sarah Conor", Email = "sarah@t3.com", Phone = "12345678"},
-            new Contact {FullName = "Jouli Smith", Email = "jouli@hotmail.com", Phone = "45657289"},
-            new Contact {FullName = "Ronald Paglinawan", Email = "ronaldpaglinawan@me.com", Phone = "123456789"}
-        };
+        private IContactsService _contactsService;
 
-        public ContactsViewModel()
+        public ContactsViewModel(IContactsService contactsService = null)
         {
-            _contacts = new ObservableCollection<Contact>(_samples);
+            _contactsService = contactsService ?? (IContactsService)Splat.Locator.Current.GetService(typeof(IContactsService));
+
+            var allContacts = _contactsService.GetAllContacts();
+            _contacts = new ObservableCollection<Contact>(allContacts);
 
             this.WhenAnyValue(vm => vm.SearchQuery)
                 .Throttle(TimeSpan.FromSeconds(1))
                 .Subscribe(query =>
                 {
-                    var filteredContacts = _samples.Where(c => c.FullName.ToLower().Contains(query) || c.Phone.Contains(query) || c.Email.Contains(query)).ToList();
+                    var filteredContacts = allContacts.Where(c => c.FullName.ToLower().Contains(query) || c.Phone.Contains(query) || c.Email.Contains(query)).ToList();
 
                     Contacts = new ObservableCollection<Contact>(filteredContacts);
                 });
@@ -37,7 +34,7 @@ namespace ReactiveUIDemo.ViewModels
             this.WhenAnyValue(vm => vm.Contacts)
                 .Select(contacts =>
                 {
-                    if (contacts.Count == _samples.Count)
+                    if (contacts.Count == allContacts.Count())
                         return "No filters applied";
 
                     return $"{Contacts.Count} have been found in result for '{SearchQuery}'";
