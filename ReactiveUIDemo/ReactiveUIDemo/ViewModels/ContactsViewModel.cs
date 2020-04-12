@@ -33,6 +33,16 @@ namespace ReactiveUIDemo.ViewModels
 
                     Contacts = new ObservableCollection<Contact>(filteredContacts);
                 });
+
+            this.WhenAnyValue(vm => vm.Contacts)
+                .Select(contacts =>
+                {
+                    if (contacts.Count == _samples.Count)
+                        return "No filters applied";
+
+                    return $"{Contacts.Count} have been found in result for '{SearchQuery}'";
+                })
+                .ToProperty(this, vm => vm.SearchResult, out _searchResult); 
         }
 
         #region Properties
@@ -42,6 +52,9 @@ namespace ReactiveUIDemo.ViewModels
             get => _searchQuery;
             set { this.RaiseAndSetIfChanged(ref _searchQuery, value); }
         }
+
+        private readonly ObservableAsPropertyHelper<string> _searchResult;
+        public string SearchResult => _searchResult.Value;
 
         private ObservableCollection<Contact> _contacts;
         public ObservableCollection<Contact> Contacts
