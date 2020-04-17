@@ -13,7 +13,7 @@ namespace ReactiveUIDemo
 
             new AppBootstrapper();
 
-            MainPage = new ContactsPage();
+            MainPage = new CommandBindPage();
         }
 
         protected override void OnStart()
