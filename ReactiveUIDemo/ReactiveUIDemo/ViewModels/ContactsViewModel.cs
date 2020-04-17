@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
+using System.Windows.Input;
 
 namespace ReactiveUIDemo.ViewModels
 {
@@ -39,7 +40,9 @@ namespace ReactiveUIDemo.ViewModels
 
                     return $"{Contacts.Count} have been found in result for '{SearchQuery}'";
                 })
-                .ToProperty(this, vm => vm.SearchResult, out _searchResult); 
+                .ToProperty(this, vm => vm.SearchResult, out _searchResult);
+
+            ClearCommand = ReactiveCommand.Create(ClearSearch);
         }
 
         #region Properties
@@ -59,7 +62,17 @@ namespace ReactiveUIDemo.ViewModels
             get => _contacts;
             set { this.RaiseAndSetIfChanged(ref _contacts, value); }
         }
+        #endregion
 
+        #region Commands
+        public ICommand ClearCommand { get; }
+        #endregion
+
+        #region Methods
+        private void ClearSearch()
+        {
+            SearchQuery = string.Empty;
+        }
         #endregion
     }
 }
