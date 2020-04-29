@@ -11,9 +11,9 @@ namespace ReactiveUIDemo
         {
             InitializeComponent();
 
-            new AppBootstrapper();
+            var bootStrapper = new AppBootstrapper();
 
-            MainPage = new ValidationDemoPage();
+            MainPage = bootStrapper.CreateMainPage();
         }
 
         protected override void OnStart()
